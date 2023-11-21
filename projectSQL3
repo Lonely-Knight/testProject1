@@ -1,0 +1,21 @@
+SELECT
+    acc,
+    dt_from,
+    COALESCE(MIN(next_dt), '3000-01-01') AS dt_to,
+    balance
+FROM (
+    SELECT 
+        acc,
+        tdate AS dt_from,
+        LEAD(tdate) OVER (PARTITION BY acc ORDER BY tdate) AS next_dt,
+        SUM(amount) OVER (PARTITION BY acc ORDER BY tdate) AS balance
+    FROM (
+        SELECT from_acc AS acc, tdate, -amount AS amount
+        FROM transfers
+        UNION ALL
+        SELECT to_acc AS acc, tdate, amount
+        FROM transfers
+    ) AS t
+) AS s
+GROUP BY acc, dt_from, balance
+ORDER BY acc, dt_from;
