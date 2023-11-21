@@ -1,0 +1,19 @@
+-- Создание временной таблицы (TEMPORARY TABLE)
+CREATE TEMPORARY TABLE IF NOT EXISTS temp_schedule (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    check_date DATE
+);
+
+-- Устанавливаем начальную дату (текущую)
+SET @current_date = CURDATE();
+
+-- Генерация 100 чисел (заполнение TEMPORARY TABLE temp_schedule)
+INSERT INTO temp_schedule (check_date)
+SELECT @current_date := DATE_ADD(@current_date, INTERVAL FLOOR(RAND() * 6) + 2 DAY)
+FROM information_schema.tables
+LIMIT 100;
+
+-- Вывод расписания дат
+SELECT check_date
+FROM temp_schedule
+ORDER BY check_date;
